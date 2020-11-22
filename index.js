@@ -1,4 +1,40 @@
+const admin = require('firebase-admin')
 const { createCanvas, registerFont, loadImage, Image } = require('canvas')
+
+admin.initializeApp({
+    credential: admin.credential.applicationDefault(),
+    storageBucket: "certify-service.appspot.com"
+})
+
+const db = admin.firestore();
+const bucket = admin.storage().bucket();
+
+const configRef = db.collection("cert-config").doc("voksnmshd31f3l6uLgVN");
+configRef.get().then(doc => {
+    if (!doc.exists) {
+        console.log("No document");
+    } else {
+        console.log("Document data:", doc.data());
+    }
+});
+
+async function downloadFile(bucketName, srcFilename, destFilename) {
+    const options = {
+      // The path to which the file should be downloaded, e.g. "./file.txt"
+      destination: destFilename,
+    };
+  
+    // Downloads the file
+    await bucket.file(srcFilename).download(options);
+  
+    console.log(
+      `gs://${bucketName}/${srcFilename} downloaded to ${destFilename}.`
+    );
+}
+
+downloadFile(
+    "certify-service", "fonts/GoogleSans-Regular-v1.27.ttf", "./google.ttf"
+).catch(console.error);
 
 registerFont('OpenSans-Regular.ttf', {family: 'Open Sans'})
 
